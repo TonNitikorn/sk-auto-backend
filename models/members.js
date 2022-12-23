@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       tel: DataTypes.STRING(255),
       line_id: DataTypes.STRING(255),
       platform: DataTypes.STRING(255),
+      credit: DataTypes.STRING(255),
       username: DataTypes.STRING(255),
       password: DataTypes.STRING(255),
       create_by: DataTypes.STRING(255),

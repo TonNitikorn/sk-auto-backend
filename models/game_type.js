@@ -16,7 +16,15 @@ module.exports = (sequelize, DataTypes) => {
     );
   
     game_type.associate = (models) => {
-      // associations can be defined here
+        //associate with uuid sub_game_type
+        game_type.hasMany(models.sub_game_type, {
+            foreignKey: 'game_type_uuid',
+            sourceKey: 'uuid',
+            as: 'sub_game_type'
+        });
+        
+       
+        
     };
   
 

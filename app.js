@@ -7,6 +7,10 @@ const cors = require('cors')
 
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
+const userRouter = require('./routes/user');
+const gameRouter = require('./routes/game');
+
+
 
 
 // const passport = require('./middleware/passport');
@@ -24,6 +28,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
+app.use('/user', userRouter);
+app.use('/game', gameRouter);
 
 
 

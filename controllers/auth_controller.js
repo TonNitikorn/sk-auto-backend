@@ -7,23 +7,23 @@ const bcrypt = require('bcryptjs');
 // login with jwt token 
 exports.login = async (req, res, next) => {
     try {
-        const { username, password } = req.body;
+        const { tel, password } = req.body;
 
-        //check username and password is null
-        if (!username || !password) {
+        //check tel and password is null
+        if (!tel || !password) {
             return res.status(400).json({
                 message: 'ข้อมูลไม่ถูกต้อง'
             });
         }
 
-        const member = await model.member.findOne({
+        const member = await model.members.findOne({
             where: {
-                username : username
+                tel: tel
             }
         });
 
         if (!member) {
-            const error = new Error("Username หรือ Password ไม่ถูกต้อง");
+            const error = new Error("หมายเลขโทรศัพท์ หรือ Password ไม่ถูกต้อง");
             error.statusCode = 401
             throw error;
         }
@@ -37,33 +37,20 @@ exports.login = async (req, res, next) => {
         }
 
         // check status is active
-        if (member.status !== 'active') {
+        if (member.status !== 'ACTIVE') {
             const error = new Error("บัญชีของคุณถูกระงับ");
             error.statusCode = 401
             throw error;
         }
-        // log login in log table   
-        let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        // check ip one ip
-        if (ip.split(',').length > 0) {
-            ip = ip.split(',')[0];
-        }
-
-        await model.log_member.create({
-            uuid: uuidv4(),
-            member_uuid: member.uuid,
-            ip: ip,
-            create_at: new Date(),
-        });
 
         //create jwt token
-        const token = jwt.sign({ uuid: member.uuid,}, config.JWT_KEY, { expiresIn: config.JWT_EXP});
+        const token = jwt.sign({ uuid: member.uuid, }, config.JWT_KEY, { expiresIn: config.JWT_EXP });
         // const expiresin = jwt.decode(token).exp;
 
         res.status(200).json({
             message: 'Login success',
             accesstoken: token,
-            type : 'Bearer',
+            type: 'Bearer',
         });
 
     } catch (error) {
@@ -73,48 +60,119 @@ exports.login = async (req, res, next) => {
 
 
 // register with jwt token bcryptjs
+
 exports.register = async (req, res, next) => {
     try {
-        const { username, password, info_name, tel , credit} = req.body;
+        const { name, bank_name, bank_number, tel, line_id, platform, password, affiliate_by } = req.body;
 
-        if (!username || !password || !info_name || !tel) {
-            const error = new Error("Invalid data");
-            error.statusCode = 400;
-            throw error;
+        //check body data is null
+        if (!name || !bank_name || !bank_number || !tel || !line_id || !platform || !password || !affiliate_by) {
+            return res.status(400).json({
+                message: 'ข้อมูลไม่ถูกต้อง'
+            });
         }
 
-        const exisUsername = await model.member.findOne({
-            where: { 
-                username: username,
-            },
-        });
-        if (exisUsername) {
-            const error = new Error("Invalid username");
-            error.statusCode = 400;
-            throw error;
-        }
+        // const member = await model.members.findOne({
+        //     where: {
+        //         tel : tel
+        //     }
+        // });
 
-        //hash password
-        const salt = await bcrypt.genSalt(config.SALT);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        // if (member) {
+        //     const error = new Error("หมายเลขโทรศัพท์นี้มีผู้ใช้งานแล้ว");
+        //     error.statusCode = 401
+        //     throw error;
+        // }
 
+        // check password by bcryptjs   
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(password, salt);
 
-        const member = await model.member.create({
+        // create member
+        const member = await model.members.create({
             uuid: uuidv4(),
-            username: username,
-            password: hashedPassword,
-            info_name: info_name,
+            name: name,
+            bank_name: bank_name,
+            bank_number: bank_number,
             tel: tel,
-            credit: credit || 0,
-            status: 'active',
+            line_id: line_id,
+            platform: platform,
+            password: hashPassword,
+            create_by: '-',
+            affiliate_by: affiliate_by,
+            status: 'ACTIVE',
+            credit: 0,
+            points: 0,
+            rank: 'MEMBER',
+            point_affiliate: 0,
             create_at: new Date(),
-            update_at: new Date(),
         });
 
-        res.status(201).json({
+        const token = jwt.sign({ uuid: member.uuid, }, config.JWT_KEY, { expiresIn: config.JWT_EXP });
+        // const expiresin = jwt.decode(token).exp;
+
+        res.status(200).json({
             message: 'Register success',
+            token: token,
         });
+
     } catch (error) {
         next(error);
     }
 }
+
+
+//edit password
+exports.editPassword = async (req, res, next) => {
+    try {
+        const {  new_password } = req.body;
+
+        //check body data is null
+        if (!new_password) {
+            return res.status(400).json({
+                message: 'ข้อมูลไม่ถูกต้อง'
+            });
+        }
+
+        // const member = await model.members.findOne({
+        //     where: {
+        //         uuid : req.member.uuid
+        //     }
+        // });
+
+        // if (!member) {
+        //     const error = new Error("ไม่พบข้อมูล");
+        //     error.statusCode = 401
+        //     throw error;
+        // }
+
+        // check password by bcryptjs   
+        // const isMatch = await bcrypt.compare(password, req.member.password);
+        // if (!isMatch) {
+        //     const error = new Error("เหมือนรหัสผ่านเดิม");
+        //     error.statusCode = 401
+        //     throw error;
+        // }
+
+
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(new_password, salt);
+
+        // update password
+        await model.members.update({
+            password: hashPassword,
+        }, {
+            where: {
+                uuid: req.member.uuid
+            }
+        });
+
+        res.status(200).json({
+            message: 'แก้ไขรหัสผ่านสำเร็จ',
+        });
+
+    } catch (error) {
+        next(error);
+    }
+}
+

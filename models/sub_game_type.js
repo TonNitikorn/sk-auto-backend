@@ -7,20 +7,26 @@ module.exports = (sequelize, DataTypes) => {
         game_icon: DataTypes.JSON,
         update_at: DataTypes.DATE,
         create_at: DataTypes.DATE,
-      },
-      {
-        tableName: "sub_game_type",
-        timestamps: false,
-      },
-  
-    );
-  
-    sub_game_type.associate = (models) => {
-      // associations can be defined here
-    };
-  
+    },
+        {
+            tableName: "sub_game_type",
+            timestamps: false,
+        },
 
-    
+    );
+
+    sub_game_type.associate = (models) => {
+       //associate with uuid game_type
+        // sub_game_type.belongsTo(models.game_type, {
+        //     foreignKey: 'game_type_uuid',
+        //     targetKey: 'uuid',
+        //     as: 'game_type'
+        // });
+
+    };
+
+
+
     return sub_game_type;
-  
-  };
+
+};
