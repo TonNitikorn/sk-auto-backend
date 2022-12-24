@@ -1,5 +1,5 @@
-const model = require('../../models/index');
-const config = require('../../config/index');
+const model = require('../../../models/index');
+const config = require('../../../config/index');
 
 //get game_type
 exports.getGameType = async (req, res, next) => {

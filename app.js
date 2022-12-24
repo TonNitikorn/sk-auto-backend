@@ -6,9 +6,9 @@ const logger = require('morgan');
 const cors = require('cors')
 
 const indexRouter = require('./routes/index');
-const authRouter = require('./src/auth/auth_router');
-const userRouter = require('./src/users/user');
-const gameRouter = require('./src/game_menu/game');
+const authRouter = require('./src/v1/auth/router');
+const userRouter = require('./src/v1/users/router');
+const gameRouter = require('./src/v1/game_menu/router');
 
 
 

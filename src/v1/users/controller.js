@@ -1,5 +1,5 @@
-const model = require('../../models/index');
-const config = require('../../config/index');
+const model = require('../../../models/index');
+const config = require('../../../config/index');
 
 //get profile by token
 exports.getProfile = async (req, res, next) => {
