@@ -1,5 +1,5 @@
-const model = require('../models/index');
-const config = require('../config/index');
+const model = require('../../models/index');
+const config = require('../../config/index');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
