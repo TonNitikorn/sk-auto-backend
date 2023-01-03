@@ -6,9 +6,9 @@ const logger = require('morgan');
 const cors = require('cors')
 
 const indexRouter = require('./routes/index');
-const authRouter = require('./src/v1/auth/router');
-const userRouter = require('./src/v1/users/router');
-const gameRouter = require('./src/v1/game_menu/router');
+const authRouter = require('./v1/auth/router');
+const userRouter = require('./v1/users/router');
+const bankRouter = require('./v1/bank/router');
 
 
 
@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
-app.use('/game', gameRouter);
+app.use('/bank', bankRouter);
 
 
 
