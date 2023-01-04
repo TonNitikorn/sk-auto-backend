@@ -66,7 +66,7 @@ exports.login = async (data) => {
 exports.register = async (data) => {
 
     //check body data is null
-    if (!data.name || !data.bank_name || !data.bank_number || !data.tel || !data.line_id || !data.platform || !data.password || !data.affiliate_by) {
+    if (!data.fname || !data.lname || !data.bank_name || !data.bank_number || !data.tel || !data.line_id || !data.platform || !data.password || !data.affiliate_by) {
         return res.status(400).json({
             message: 'ข้อมูลไม่ถูกต้อง'
         });
@@ -91,7 +91,9 @@ exports.register = async (data) => {
     // create member
     const member = await model.members.create({
         uuid: uuidv4(),
-        name: data.name,
+        name: data.fname +' '+ data.lname,
+        fname: data.fname,
+        lname: data.lname,
         bank_name: data.bank_name,
         bank_number: data.bank_number,
         tel: data.tel,

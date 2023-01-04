@@ -8,6 +8,8 @@ module.exports = (sequelize, DataTypes) => {
       uuid: DataTypes.STRING(255),
       name: DataTypes.STRING(255),
       bank_name: DataTypes.STRING(255),
+      fname: DataTypes.STRING(255),
+      lname: DataTypes.STRING(255),
       bank_number: DataTypes.DECIMAL(10,2),
       tel: DataTypes.STRING(255),
       line_id: DataTypes.STRING(255),
