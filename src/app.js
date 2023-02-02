@@ -9,6 +9,8 @@ const indexRouter = require('./routes/index');
 const authRouter = require('./v1/auth/router');
 const userRouter = require('./v1/users/router');
 const bankRouter = require('./v1/bank/router');
+//menu
+const menuRouter = require('./v1/menu/router');
 
 
 
@@ -30,6 +32,8 @@ app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/bank', bankRouter);
+//menu
+app.use('/menu', menuRouter);
 
 
 

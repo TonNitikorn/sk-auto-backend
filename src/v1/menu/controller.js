@@ -1,5 +1,7 @@
-const model = require('../../../models/index');
-const config = require('../../../config/index');
+const model = require('../../models/index');
+const config = require('../../config/index');
+//service
+const service = require('./service');
 
 //get game_type
 exports.getGameType = async (req, res, next) => {
@@ -23,3 +25,32 @@ exports.getGameType = async (req, res, next) => {
         next(error);
     }
 }
+
+exports.getWebSettingAll = async(req, res, next) => {
+    try {
+        let data = req.body;
+        let admin = req.admin;
+        //get game_type on service
+        const web_setting_data = await service.getWebSettingAll(data,admin);
+        res.status(201).json(web_setting_data)
+    }
+    catch (error) {
+        next(error);
+     }
+}
+
+//get web_setting where type = 'logo'
+exports.getWebSettingLogo = async (req, res, next) => {
+    try {
+        let data = req.body;
+        let admin = req.admin;
+        //get game_type on service
+        const web_setting_data = await service.getWebSettingLogo(data,admin);
+        res.status(201).json(web_setting_data)
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+

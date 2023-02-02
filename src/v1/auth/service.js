@@ -52,17 +52,6 @@ exports.login = async (data) => {
     };
 }
 
-
- 
-
-
-
-
-
-
-
-
-
 exports.register = async (data) => {
 
     //check body data is null
