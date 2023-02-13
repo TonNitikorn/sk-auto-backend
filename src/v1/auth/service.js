@@ -3,6 +3,8 @@ const config = require('../../config/index');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
+const { default: axios } = require('axios');
+
 
 // login with jwt token
 exports.login = async (data) => {
@@ -110,26 +112,69 @@ exports.register = async (data) => {
 
 //edit password
 exports.editPassword = async (data,req) => {    
-        //check body data is null
-        if (!data.new_password) {
-            console.log('object :>> HERE 77 ');
-            return res.status(400).json({
-                message: 'ข้อมูลไม่ถูกต้อง'
-            });
+    //check body data is null
+    if (!data.new_password) {
+        console.log('object :>> HERE 77 ');
+        return res.status(400).json({
+            message: 'ข้อมูลไม่ถูกต้อง'
+        });
+    }
+
+    // check password by bcryptjs   
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(data.new_password, salt);
+
+    const member = await model.members.update({
+        password: hashPassword,
+    }, {
+        where: {
+            uuid: req.uuid
         }
+    });
+
+    return member
     
-        // check password by bcryptjs   
-        const salt = await bcrypt.genSalt(10);
-        const hashPassword = await bcrypt.hash(data.new_password, salt);
-    
-        const member = await model.members.update({
-            password: hashPassword,
-        }, {
+}
+
+//Line login
+exports.lineLogin = async (data) => {
+    //check body data is null
+    if (!data.token) {
+        const error = new Error("ข้อมูลไม่ถูกต้อง");
+        error.statusCode = 401
+        throw error;
+    }
+
+    try {
+        //check token
+        const verify = await axios.get(`https://api.line.me/oauth2/v2.1/verify${data.token}`);
+
+        //check user is exist
+        const member = await model.members.findOne({
             where: {
-                uuid: req.uuid
+                line_id: verify.data.client_id
             }
         });
-    
-        return member
-    
+
+        if (!member) {
+            const error = new Error("ไม่พบข้อมูลผู้ใช้งาน");
+            error.statusCode = 401
+            throw error;
+        }
+
+        //create jwt token
+        const token = jwt.sign({ uuid: member.uuid, }, config.JWT_KEY, { expiresIn: config.JWT_EXP });
+        // const expiresin = jwt.decode(token).exp;
+
+        return {
+            message: 'Line Login success',
+            accesstoken: token,
+            type: 'Bearer',
+        };
+
+    } catch (error) {
+        
     }
+
+    
+}

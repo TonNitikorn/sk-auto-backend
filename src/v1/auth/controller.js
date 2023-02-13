@@ -44,3 +44,20 @@ exports.editPassword = async (req, res, next) => {
         next(error);
     }
 }
+
+
+//login line
+exports.loginLine = async (req, res, next) => {
+    try {
+
+        const result = await authServices.loginLine(req.body);
+
+        res.status(200).json({
+            message: 'Login line success',
+            result
+        });
+
+    } catch (error) {
+        next(error);
+    }
+}
