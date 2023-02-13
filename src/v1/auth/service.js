@@ -139,20 +139,39 @@ exports.editPassword = async (data,req) => {
 //Line login
 exports.lineLogin = async (data) => {
     //check body data is null
-    if (!data.token) {
+    if (!data.code) {
         const error = new Error("ข้อมูลไม่ถูกต้อง");
         error.statusCode = 401
         throw error;
     }
 
     try {
-        //check token
-        const verify = await axios.get(`https://api.line.me/oauth2/v2.1/verify${data.token}`);
+
+        //check code
+        const responsecode = await axios.post(
+            'https://api.line.me/oauth2/v2.1/token',
+            new URLSearchParams({
+                'grant_type': 'authorization_code',
+                'code': data.code,
+                'client_id': '1657892994',
+                'client_secret': '8e6d6544d20fdc5d31207428bd174080'
+            })
+        );
+        const responseverify = await axios.post(
+            'https://api.line.me/oauth2/v2.1/verify',
+            new URLSearchParams({
+                'id_token': responsecode.data.id_token,
+                'client_id': '1657892994'
+            })
+        );
+
+        console.log(responseverify.data);
+
 
         //check user is exist
         const member = await model.members.findOne({
             where: {
-                line_id: verify.data.client_id
+                line_id: responseverify.data.sub
             }
         });
 
