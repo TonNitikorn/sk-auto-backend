@@ -44,7 +44,7 @@ app.use('/v2', version2Router);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     const error = new Error('Not Found');
-    error.status = 404;
+    error.statusCode = 404;
     next(error);
 });
 

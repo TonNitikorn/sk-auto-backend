@@ -27,14 +27,14 @@ exports.verifyOTP = async (req, res, next) => {
     }
 }
 
-// register with jwt token bcryptjs
-exports.register = async (req, res, next) => {
+// registerOTP
+exports.registerOTP = async (req, res, next) => {
     try {
 
         const result = await authServices.register(req.body);
 
         res.status(200).json({
-            message: 'Register success',
+            message: 'Register request success',
             result
         });
 
@@ -43,31 +43,15 @@ exports.register = async (req, res, next) => {
     }
 }
 
-
-//edit password
-exports.editPassword = async (req, res, next) => {
-    try {
-        const result = await authServices.editPassword(req.body, req.member);
-
-        res.status(200).json({
-            message: 'Edit password success',
-
-        });
-
-    } catch (error) {
-        next(error);
-    }
-}
-
-
-//login line
-exports.loginLine = async (req, res, next) => {
+// Register Verify OTP
+exports.registerverifyOTP = async (req, res, next) => {
     try {
 
-        const result = await authServices.lineLogin(req.body);
+        const result = await authServices.registerVerifyOTP(req.body)
 
         res.status(200).json({
-            result : result
+            message: 'Register success',
+            result
         });
 
     } catch (error) {
