@@ -3,7 +3,7 @@ const authServices = require('./service');
 exports.login = async (req, res, next) => {
     try {
 
-        const result = await authServices.login(req.body);
+        const result = await authServices.loginOTP(req.body);
         res.status(200).json(
             result,
         );
@@ -12,8 +12,22 @@ exports.login = async (req, res, next) => {
         next(error);
     }
 }
-// register with jwt token bcryptjs
 
+// Verify OTP
+exports.verifyOTP = async (req, res, next) => {
+    try {
+
+        const result = await authServices.verifyOTP(req.body);
+        res.status(200).json(
+            result,
+        );
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+// register with jwt token bcryptjs
 exports.register = async (req, res, next) => {
     try {
 

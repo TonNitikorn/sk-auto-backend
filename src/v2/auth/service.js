@@ -7,10 +7,10 @@ const axios = require('axios');
 const qs = require('qs');
 
 
-// login with jwt token
-exports.login = async (data) => {
+// loginOTP
+exports.loginOTP = async (data) => {
 
-    if (!data.tel || !data.password) {
+    if (!data.tel) {
         return res.status(400).json({
             message: 'ข้อมูลไม่ถูกต้อง'
         });
@@ -23,18 +23,11 @@ exports.login = async (data) => {
     });
 
     if (!member) {
-        const error = new Error("หมายเลขโทรศัพท์ หรือ Password ไม่ถูกต้อง");
+        const error = new Error("ไม่มีข้อมูลผู้ใช้งานนี้");
         error.statusCode = 401
         throw error;
     }
 
-    // check password by bcryptjs   
-    const isMatch = await bcrypt.compare(data.password, member.password);
-    if (!isMatch) {
-        const error = new Error("รหัสผ่านไม่ถูกต้อง");
-        error.statusCode = 401
-        throw error;
-    }
 
     // check status is active
     if (member.status !== 'ACTIVE') {
@@ -43,16 +36,99 @@ exports.login = async (data) => {
         throw error;
     }
 
-    //create jwt token
-    const token = jwt.sign({ uuid: member.uuid, }, config.JWT_KEY, { expiresIn: config.JWT_EXP });
-    // const expiresin = jwt.decode(token).exp;
 
-    //return token
-    return {
-        message: 'Login success',
-        accesstoken: token,
-        type: 'Bearer',
-    };
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/x-www-form-urlencoded"
+    }
+
+    let key = '1757632322265781';
+    let secret = '2e828b5980cc5c71eff0684089faef63';
+
+
+    payload = `key=${key}&secret=${secret}&msisdn=${data.tel}`
+
+    //send sms
+    try {
+        const sms = await axios.post('https://otp.thaibulksms.com/v2/otp/request', payload, { headers: headers });
+        console.log(sms);
+
+        return sms.data;
+    } catch (error) {
+        const err = new Error(error);
+        err.statusCode = 500;
+        throw err;
+    }
+
+}
+
+
+//verifyOTP
+exports.verifyOTP = async (data) => {
+    
+        if (!data.tel || !data.pin || !data.token) {
+            return res.status(400).json({
+                message: 'ข้อมูลไม่ถูกต้อง'
+            });
+        }
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/x-www-form-urlencoded"
+        }
+    
+        let key = '1757632322265781';
+        let secret = '2e828b5980cc5c71eff0684089faef63';
+    
+        payload = `key=${key}&secret=${secret}&token=${data.token}&pin=${data.pin}`
+    
+        //verify sms
+        try {
+            const sms = await axios.post('https://otp.thaibulksms.com/v2/otp/verify', payload, { headers: headers });
+    
+            if (sms.data.status == 'success') {
+    
+                const member = await model.members.findOne({
+                    where: {
+                        tel: data.tel
+                    }
+                });
+
+                //check member is null
+                if (!member) {
+                    const error = new Error("ไม่มีข้อมูลผู้ใช้งานนี้");
+                    error.statusCode = 401
+                    throw error;
+                }
+
+                // check status is active
+                if (member.status !== 'ACTIVE') {
+                    const error = new Error("บัญชีของคุณถูกระงับ");
+                    error.statusCode = 401
+                    throw error;
+                }
+
+                //create jwt token
+                const token = jwt.sign({ uuid: member.uuid, }, config.JWT_KEY, { expiresIn: config.JWT_EXP });
+                
+
+                return {
+                    message: 'Login success',
+                    accesstoken: token,
+                    type: 'Bearer',
+                };
+
+            } else {
+                const error = new Error('OTP is invalid');
+                error.statusCode = 400;
+                throw error;
+            }
+        } catch (error) {
+            const err = new Error(error);
+            err.statusCode = 500;
+            throw err;
+        }
+
+
 }
 
 exports.register = async (data) => {
@@ -135,50 +211,4 @@ exports.editPassword = async (data,req) => {
 
     return member
     
-}
-
-//Line login
-exports.lineLogin = async (data) => {
-    //check body data is null
-    if (!data.code) {
-        const error = new Error("ข้อมูลไม่ถูกต้อง");
-        error.statusCode = 401
-        throw error;
-    }
-
-        //check code
-        var datacode = qs.stringify({
-            'grant_type': 'authorization_code',
-            'code': data.code,
-            'client_id': '1657892994',
-            'client_secret': '8e6d6544d20fdc5d31207428bd174080',
-            'redirect_uri': 'https://angpaos.com/auth/callback' 
-        });
-
-        var configcode = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'https://api.line.me/oauth2/v2.1/token',
-            headers: { 
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data : data
-        };
-
-        const responsecode = await axios(config);
-
-        var configprofile = {
-            method: 'get',
-            maxBodyLength: Infinity,
-            url: 'https://api.line.me/v2/profile',
-            headers: { 
-              'Authorization': 'Bearer '+responsecode.data.access_token
-            }
-        };
-
-        const responseprofile = await axios(configprofile);
-
-
-        return responsecode.data;
-
 }
