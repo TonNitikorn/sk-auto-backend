@@ -6,6 +6,7 @@ const passport = require('../../middleware/passport');
 
 
 router.post('/login', authController.login);
+router.post('/verify', authController.verifyOTP);
 router.post('/register', authController.register);
 router.post('/edit_password', [ passport.authorized ],authController.editPassword);
 

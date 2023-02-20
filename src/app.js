@@ -28,7 +28,6 @@ app.use(express.urlencoded({ extended: true }));
 
 
 //version 1
-app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/bank', bankRouter);
