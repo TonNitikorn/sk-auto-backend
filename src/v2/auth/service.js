@@ -216,7 +216,7 @@ exports.registerVerifyOTP = async (data) => {
             });
 
             //check member is null
-            if (!member) {
+            if (member) {
                 const error = new Error("มีผู้ใช้งานนี้แล้ว");
                 error.statusCode = 401
                 throw error;
