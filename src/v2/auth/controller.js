@@ -31,7 +31,7 @@ exports.verifyOTP = async (req, res, next) => {
 exports.registerOTP = async (req, res, next) => {
     try {
 
-        const result = await authServices.register(req.body);
+        const result = await authServices.registerOTP(req.body);
 
         res.status(200).json({
             message: 'Register request success',

@@ -10,9 +10,9 @@ const axios = require('axios');
 exports.loginOTP = async (data) => {
 
     if (!data.tel) {
-        return res.status(400).json({
-            message: 'ข้อมูลไม่ถูกต้อง'
-        });
+        const error = new Error("ข้อมูลไม่ถูกต้อง");
+        error.statusCode = 400
+        throw error;
     }
 
     const member = await model.members.findOne({
@@ -65,9 +65,9 @@ exports.loginOTP = async (data) => {
 exports.verifyOTP = async (data) => {
     
         if (!data.tel || !data.pin || !data.token) {
-            return res.status(400).json({
-                message: 'ข้อมูลไม่ถูกต้อง'
-            });
+            const error = new Error("ข้อมูลไม่ถูกต้อง");
+            error.statusCode = 400
+            throw error;
         }
         headers = {
             "accept": "application/json",
