@@ -228,7 +228,6 @@ exports.registerVerifyOTP = async (data) => {
                 bank_name: data.bank_name,
                 bank_number: data.bank_number,
                 tel: data.tel,
-                line_id: data.line_id,
                 platform: data.platform,
                 create_by: '-',
                 affiliate_by: data.affiliate_by,
