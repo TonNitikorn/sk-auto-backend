@@ -59,11 +59,11 @@ exports.createWithdrawRequest = async (data, username) => {
     //     ]
     // });
     //get bank by uuid
-    const bank = await model.banks.findOne({
-        where: {
-            uuid: data.by_bank
-        }
-    });
+    // const bank = await model.banks.findOne({
+    //     where: {
+    //         uuid: data.by_bank
+    //     }
+    // });
     //create withdraw request
     const transaction = await model.transaction.create({
         uuid: uuidv4(),
@@ -83,7 +83,6 @@ exports.createWithdrawRequest = async (data, username) => {
         detail: '-',
         detail_bank: '-',
         slip: '-',
-        by_bank:0,
         create_at: new Date(),
         update_at: new Date()
     });
