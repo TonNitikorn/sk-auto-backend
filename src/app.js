@@ -9,7 +9,8 @@ const userRouter = require('./v1/users/router');
 const bankRouter = require('./v1/bank/router');
 //menu
 const menuRouter = require('./v1/menu/router');
-//
+//transaction
+const transactionRouter = require('./v1/transaction/router');
 
 
 //version 2
@@ -33,7 +34,8 @@ app.use('/user', userRouter);
 app.use('/bank', bankRouter);
 //menu
 app.use('/menu', menuRouter);
-//
+//transaction
+app.use('/transaction', transactionRouter);
 
 //version 2
 app.use('/v2', version2Router);
