@@ -6,11 +6,11 @@ exports.createWithdrawRequest = async (req, res, next) => {
     try {
         const data = req.body;
         const username = req.member.username;
+        console.log('username :>> ', req.member);
         const member = await transactionServices.createWithdrawRequest(data, username);
         res.status(200).json(
             {
-                message: 'สร้างคำขอถอนเงินสำเร็จ',
-                member
+                message: 'Success',
             }
         );
     } catch (error) {
