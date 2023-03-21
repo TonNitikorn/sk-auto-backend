@@ -63,68 +63,68 @@ exports.loginOTP = async (data) => {
 
 //verifyOTP
 exports.verifyOTP = async (data) => {
-
-    if (!data.tel || !data.pin || !data.token) {
-        const error = new Error("ข้อมูลไม่ถูกต้อง");
-        error.statusCode = 400
-        throw error;
-    }
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/x-www-form-urlencoded"
-    }
-
-    let key = '1757632322265781';
-    let secret = '2e828b5980cc5c71eff0684089faef63';
-
-    payload = `key=${key}&secret=${secret}&token=${data.token}&pin=${data.pin}`
-
-    //verify sms
-    try {
-        const sms = await axios.post('https://otp.thaibulksms.com/v2/otp/verify', payload, { headers: headers });
-
-        if (sms.data.status == 'success') {
-
-            const member = await model.members.findOne({
-                where: {
-                    tel: data.tel
-                }
-            });
-
-            //check member is null
-            if (!member) {
-                const error = new Error("ไม่มีข้อมูลผู้ใช้งานนี้");
-                error.statusCode = 401
-                throw error;
-            }
-
-            // check status is active
-            if (member.status !== 'ACTIVE') {
-                const error = new Error("บัญชีของคุณถูกระงับ");
-                error.statusCode = 401
-                throw error;
-            }
-
-            //create jwt token
-            const token = jwt.sign({ uuid: member.uuid, }, config.JWT_KEY, { expiresIn: config.JWT_EXP });
-
-
-            return {
-                message: 'Login success',
-                accesstoken: token,
-                type: 'Bearer',
-            };
-
-        } else if (sms.data.status == 'error') {
-            const error = new Error('OTP is invalid');
-            error.statusCode = 400;
+    
+        if (!data.tel || !data.pin || !data.token) {
+            const error = new Error("ข้อมูลไม่ถูกต้อง");
+            error.statusCode = 400
             throw error;
         }
-    } catch (error) {
-        const err = new Error(error);
-        err.statusCode = 500;
-        throw err;
-    }
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/x-www-form-urlencoded"
+        }
+    
+        let key = '1757632322265781';
+        let secret = '2e828b5980cc5c71eff0684089faef63';
+    
+        payload = `key=${key}&secret=${secret}&token=${data.token}&pin=${data.pin}`
+    
+        //verify sms
+        try {
+            const sms = await axios.post('https://otp.thaibulksms.com/v2/otp/verify', payload, { headers: headers });
+    
+            if (sms.data.status == 'success') {
+    
+                const member = await model.members.findOne({
+                    where: {
+                        tel: data.tel
+                    }
+                });
+
+                //check member is null
+                if (!member) {
+                    const error = new Error("ไม่มีข้อมูลผู้ใช้งานนี้");
+                    error.statusCode = 401
+                    throw error;
+                }
+
+                // check status is active
+                if (member.status !== 'ACTIVE') {
+                    const error = new Error("บัญชีของคุณถูกระงับ");
+                    error.statusCode = 401
+                    throw error;
+                }
+
+                //create jwt token
+                const token = jwt.sign({ uuid: member.uuid, }, config.JWT_KEY, { expiresIn: config.JWT_EXP });
+                
+
+                return {
+                    message: 'Login success',
+                    accesstoken: token,
+                    type: 'Bearer',
+                };
+
+            } else if (sms.data.status == 'error') {
+                const error = new Error('OTP is invalid');
+                error.statusCode = 400;
+                throw error;
+            }
+        } catch (error) {
+            const err = new Error(error);
+            err.statusCode = 500;
+            throw err;
+        }
 
 
 }
@@ -160,33 +160,12 @@ exports.registerOTP = async (data) => {
     let secret = '2e828b5980cc5c71eff0684089faef63';
 
 
-    //    let payload = `key=${key}&secret=${secret}&msisdn=${data.tel}`
-    //payload to object
+    payload = `key=${key}&secret=${secret}&msisdn=${data.tel}`
 
-    let payload = {
-        key: key,
-        secret: secret,
-        msisdn: data.tel
-    }
-
-    const form = new FormData();
     //send sms
-    form.append('key', key);
-    form.append('secret', secret);
-    form.append('msisdn', data.tel);
+    try {
+        const sms = await axios.post('https://otp.thaibulksms.com/v2/otp/request', payload, { headers: headers });
 
-    console.log("TRY");
-    console.log('payload :>> ', payload);
-
-    
-    await axios.post('https://otp.thaibulksms.com/v2/otp/request', form, {
-        headers: {
-            "accept": "application/json",
-            "content-type": "application/x-www-form-urlencoded"
-        }
-    }).then((res) => {
-        console.log('SUSSCES :>> ');
-        console.log('sms186 :>> ', res);
         if (sms.data.status == 'success') {
             return sms.data;
 
@@ -195,9 +174,12 @@ exports.registerOTP = async (data) => {
             error.statusCode = 400;
             throw error;
         }
-    }).catch(() => {
-        console.log('ERROR :>> 197');
-    })
+
+    } catch (error) {
+        const err = new Error(error);
+        err.statusCode = 500;
+        throw err;
+    }
 
 };
 
@@ -264,7 +246,7 @@ exports.registerVerifyOTP = async (data) => {
                 throw error;
             }
 
-
+            
             //create jwt token
             const token = jwt.sign({ uuid: createmember.uuid, }, config.JWT_KEY, { expiresIn: config.JWT_EXP });
 
@@ -273,8 +255,8 @@ exports.registerVerifyOTP = async (data) => {
                 accesstoken: token,
                 type: 'Bearer',
             };
-
-        }
+    
+        } 
     } catch (error) {
         const err = new Error(error);
         err.statusCode = 500;
